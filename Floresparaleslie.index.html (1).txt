@@ -1,0 +1,374 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Para Leslie — Un ramo amarillo</title>
+<style>
+  :root{
+    --bg1:#fff9e6;
+    --bg2:#fff3b8;
+    --card:#ffffffcc;
+    --accent:#f6c23e;
+    --accent-dark:#e6a300;
+    --text:#2b2b2b;
+  }
+
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:linear-gradient(135deg,var(--bg1),var(--bg2));color:var(--text)}
+  .wrap{
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+    box-sizing:border-box;
+  }
+
+  .card{
+    width:min(920px,96%);
+    background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.75));
+    border-radius:18px;
+    box-shadow:0 8px 30px rgba(20,20,20,.12);
+    overflow:hidden;
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:0;
+    align-items:stretch;
+  }
+
+  /* Left: message */
+  .left{
+    padding:36px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  h1{
+    margin:0;
+    font-size:clamp(26px,4.5vw,36px);
+    letter-spacing: -0.02em;
+    color:var(--accent-dark);
+  }
+  .subtitle{
+    margin:0;
+    font-size:clamp(14px,2.2vw,16px);
+    color:#555;
+  }
+
+  .message{
+    margin-top:10px;
+    background:linear-gradient(180deg,rgba(246,194,62,.06),rgba(246,194,62,.02));
+    border-radius:10px;
+    padding:18px;
+    font-size:clamp(16px,2.2vw,18px);
+    line-height:1.5;
+    color:#2c2c2c;
+  }
+
+  .actions{
+    margin-top:auto;
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .btn{
+    background:var(--accent);
+    border:none;
+    padding:12px 16px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    box-shadow:0 6px 18px rgba(230,160,0,.18);
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn-ghost{
+    background:transparent;
+    border:1px solid rgba(43,43,43,.08);
+    padding:12px 14px;
+    border-radius:10px;
+    cursor:pointer;
+  }
+
+  /* Right: bouquet */
+  .right{
+    background:linear-gradient(180deg,#fff9e6, #fff6d0);
+    padding:26px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* SVG flower styles */
+  .flowers{width:360px;max-width:86%;height:auto;display:block}
+  .stem{fill:#1f6b3a}
+  .petal{fill:var(--accent); transform-origin:center; animation:petal-sway 3.6s ease-in-out infinite}
+  .center{fill:#b87400}
+  .flower{filter: drop-shadow(0 10px 15px rgba(0,0,0,.08));}
+
+  @keyframes petal-sway{
+    0%{transform:rotate(0deg) translateY(0)}
+    50%{transform:rotate(4deg) translateY(-3px)}
+    100%{transform:rotate(0deg) translateY(0)}
+  }
+
+  /* subtle float */
+  .flower-1{animation:float 4.6s ease-in-out infinite}
+  .flower-2{animation:float 5.2s ease-in-out infinite; animation-delay:-0.6s}
+  .flower-3{animation:float 4.2s ease-in-out infinite; animation-delay:-0.2s}
+  @keyframes float{
+    0%{transform:translateY(0)}
+    50%{transform:translateY(-6px)}
+    100%{transform:translateY(0)}
+  }
+
+  /* Ribbon */
+  .ribbon{fill:#c94a84; transform-origin:center; transition:transform .16s ease}
+  .ribbon:hover{transform:scale(1.03)}
+
+  /* Confetti canvas full */
+  #confetti{position:absolute;inset:0;pointer-events:none}
+
+  /* Responsive */
+  @media (max-width:880px){
+    .card{grid-template-columns:1fr; gap:0}
+    .right{order:-1;padding-top:18px;padding-bottom:18px}
+    .left{padding:22px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card" role="article" aria-label="Tarjeta con flores para Leslie">
+    <section class="left">
+      <h1>Para Leslie 🌼</h1>
+      <p class="subtitle">Un detalle amarillo — con todo mi cariño.</p>
+
+      <div class="message" id="message">
+        Leslie, estas flores son para ti — porque iluminas mis días como el sol.  
+        Gracias por tu risa, tu calma y tu fuerza. — Con amor.
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="sendBtn" title="Enviar confetti y animación">Enviar beso & confeti</button>
+        <button class="btn-ghost" id="editBtn" title="Editar el mensaje">Editar mensaje</button>
+        <button class="btn-ghost" id="downloadBtn" title="Guardar como imagen">Descargar tarjeta (PNG)</button>
+      </div>
+      <p style="margin:10px 0 0;font-size:13px;color:#666">Consejo: puedes editar el texto y luego descargar la tarjeta para mandarla.</p>
+    </section>
+
+    <aside class="right" aria-hidden="false">
+      <!-- Confetti canvas -->
+      <canvas id="confetti"></canvas>
+
+      <!-- SVG bouquet -->
+      <svg class="flowers" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ramo de flores amarillas">
+        <!-- stems -->
+        <g transform="translate(80,120)">
+          <path class="stem" d="M220 220 C200 180 180 160 170 80" stroke="#1f6b3a" stroke-width="8" fill="none" stroke-linecap="round"/>
+          <path class="stem" d="M260 240 C240 200 220 170 200 100" stroke="#1f6b3a" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <path class="stem" d="M200 260 C190 210 160 170 120 120" stroke="#1f6b3a" stroke-width="9" fill="none" stroke-linecap="round"/>
+        </g>
+
+        <!-- flower 1 -->
+        <g class="flower flower-1" transform="translate(160,160) scale(1)">
+          <g transform="translate(0,0)">
+            <g class="petals">
+              <ellipse class="petal" cx="0" cy="-60" rx="22" ry="48" transform="rotate(0)"/>
+              <ellipse class="petal" cx="45" cy="-35" rx="22" ry="48" transform="rotate(30)"/>
+              <ellipse class="petal" cx="60" cy="5" rx="22" ry="48" transform="rotate(60)"/>
+              <ellipse class="petal" cx="40" cy="45" rx="22" ry="48" transform="rotate(100)"/>
+              <ellipse class="petal" cx="0" cy="70" rx="22" ry="48" transform="rotate(140)"/>
+              <ellipse class="petal" cx="-40" cy="45" rx="22" ry="48" transform="rotate(200)"/>
+              <ellipse class="petal" cx="-60" cy="5" rx="22" ry="48" transform="rotate(240)"/>
+              <ellipse class="petal" cx="-45" cy="-35" rx="22" ry="48" transform="rotate(300)"/>
+            </g>
+            <circle class="center" cx="0" cy="0" r="20"/>
+          </g>
+        </g>
+
+        <!-- flower 2 (bigger) -->
+        <g class="flower flower-2" transform="translate(300,120) scale(1.15)">
+          <g>
+            <g class="petals">
+              <ellipse class="petal" cx="0" cy="-72" rx="26" ry="56" transform="rotate(0)"/>
+              <ellipse class="petal" cx="52" cy="-40" rx="26" ry="56" transform="rotate(30)"/>
+              <ellipse class="petal" cx="72" cy="10" rx="26" ry="56" transform="rotate(60)"/>
+              <ellipse class="petal" cx="48" cy="62" rx="26" ry="56" transform="rotate(100)"/>
+              <ellipse class="petal" cx="0" cy="98" rx="26" ry="56" transform="rotate(140)"/>
+              <ellipse class="petal" cx="-48" cy="62" rx="26" ry="56" transform="rotate(200)"/>
+              <ellipse class="petal" cx="-72" cy="10" rx="26" ry="56" transform="rotate(240)"/>
+              <ellipse class="petal" cx="-52" cy="-40" rx="26" ry="56" transform="rotate(300)"/>
+            </g>
+            <circle class="center" cx="0" cy="0" r="26"/>
+          </g>
+        </g>
+
+        <!-- flower 3 -->
+        <g class="flower flower-3" transform="translate(220,260) scale(.95)">
+          <g>
+            <g class="petals">
+              <ellipse class="petal" cx="0" cy="-58" rx="20" ry="42" transform="rotate(0)"/>
+              <ellipse class="petal" cx="44" cy="-30" rx="20" ry="42" transform="rotate(30)"/>
+              <ellipse class="petal" cx="58" cy="10" rx="20" ry="42" transform="rotate(60)"/>
+              <ellipse class="petal" cx="38" cy="42" rx="20" ry="42" transform="rotate(100)"/>
+              <ellipse class="petal" cx="0" cy="70" rx="20" ry="42" transform="rotate(140)"/>
+              <ellipse class="petal" cx="-38" cy="42" rx="20" ry="42" transform="rotate(200)"/>
+              <ellipse class="petal" cx="-58" cy="10" rx="20" ry="42" transform="rotate(240)"/>
+              <ellipse class="petal" cx="-44" cy="-30" rx="20" ry="42" transform="rotate(300)"/>
+            </g>
+            <circle class="center" cx="0" cy="0" r="18"/>
+          </g>
+        </g>
+
+        <!-- ribbon -->
+        <g transform="translate(180,360)">
+          <path class="ribbon" d="M0 35 C20 10 140 10 160 35 L140 70 C120 55 20 55 0 70 Z"/>
+          <path d="M24 38 L52 38 M108 38 L136 38" stroke="#fff6f8" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+        </g>
+
+      </svg>
+    </aside>
+  </div>
+</div>
+
+<script>
+  // personalization: capitalize first letter
+  const recipient = "Leslie";
+  document.querySelector('h1').textContent = `Para ${recipient} 🌼`;
+
+  // Edit message functionality
+  const msgDiv = document.getElementById('message');
+  const editBtn = document.getElementById('editBtn');
+  editBtn.addEventListener('click', () => {
+    const current = msgDiv.textContent.trim();
+    const newText = prompt("Edita el mensaje para " + recipient + ":", current);
+    if (newText !== null) {
+      msgDiv.textContent = newText;
+    }
+  });
+
+  // Simple confetti
+  const confCanvas = document.getElementById('confetti');
+  const ctx = confCanvas.getContext('2d');
+  let cw, ch;
+  function resizeCanvas(){
+    cw = confCanvas.width = confCanvas.clientWidth;
+    ch = confCanvas.height = confCanvas.clientHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function random(min,max){ return Math.random()*(max-min)+min }
+
+  function shootConfetti(){
+    const particles = [];
+    const colors = ['#f6c23e','#f8b195','#f67280','#f5e76e','#ff8a65','#b06f00'];
+    const startX = cw*0.5;
+    for(let i=0;i<140;i++){
+      particles.push({
+        x: startX + random(-60,60),
+        y: ch * 0.2,
+        vx: random(-6,6),
+        vy: random(-2,6),
+        size: random(6,12),
+        color: colors[Math.floor(Math.random()*colors.length)],
+        rot: random(0,Math.PI*2),
+        rotSpeed: random(-0.2,0.2),
+        life: random(60,110)
+      });
+    }
+
+    let frame = 0;
+    function frameLoop(){
+      ctx.clearRect(0,0,cw,ch);
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.12; // gravity
+        p.rot += p.rotSpeed;
+        p.life--;
+        ctx.save();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+        ctx.restore();
+        if(p.life<=0 || p.y > ch + 60) particles.splice(i,1);
+      }
+      frame++;
+      if(particles.length>0) requestAnimationFrame(frameLoop);
+      else ctx.clearRect(0,0,cw,ch);
+    }
+    frameLoop();
+  }
+
+  // Hook send button
+  document.getElementById('sendBtn').addEventListener('click', ()=>{
+    shootConfetti();
+    // little pulse on ribbon to simulate "kiss sent"
+    const ribbon = document.querySelector('.ribbon');
+    ribbon.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:650,easing:'ease-out'});
+  });
+
+  // Download as PNG (render the card to canvas and save)
+  document.getElementById('downloadBtn').addEventListener('click', async ()=>{
+    const card = document.querySelector('.card');
+    // Use foreignObject + SVG to rasterize HTML -> canvas
+    const rect = card.getBoundingClientRect();
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS,'svg');
+    svg.setAttribute('width', rect.width);
+    svg.setAttribute('height', rect.height);
+    const foreign = document.createElementNS(svgNS,'foreignObject');
+    foreign.setAttribute('width','100%');
+    foreign.setAttribute('height','100%');
+
+    // clone and inline styles
+    const clone = card.cloneNode(true);
+    // remove canvas (confetti) from clone
+    const conf = clone.querySelector('#confetti');
+    if(conf) conf.remove();
+    // wrap in a div with inline computed styles to preserve look
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
+    wrapper.style.width = rect.width + "px";
+    wrapper.style.height = rect.height + "px";
+    wrapper.appendChild(clone);
+    foreign.appendChild(wrapper);
+    svg.appendChild(foreign);
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const img = new Image();
+    const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(svgBlob);
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = rect.width * 2; // increase resolution
+      c.height = rect.height * 2;
+      const cctx = c.getContext('2d');
+      cctx.scale(2,2);
+      cctx.drawImage(img,0,0);
+      URL.revokeObjectURL(url);
+      c.toBlob((blob)=>{
+        const a = document.createElement('a');
+        a.download = `Tarjeta_para_${recipient}.png`;
+        a.href = URL.createObjectURL(blob);
+        a.click();
+      },'image/png');
+    };
+    img.onerror = () => {
+      alert('No se pudo generar la imagen en este navegador. Prueba en Chrome/Edge/Firefox.');
+    };
+    img.src = url;
+  });
+
+  // Ensure canvas matches parent size on load
+  const ro = new ResizeObserver(resizeCanvas);
+  ro.observe(document.querySelector('.right'));
+</script>
+</body>
+</html>
